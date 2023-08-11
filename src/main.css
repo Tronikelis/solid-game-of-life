@@ -1,0 +1,45 @@
+:root {
+    --cell-width: 4px;
+    --per-row: 24;
+    --gap: 2px;
+    --border-size: 1px;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.middle {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cell-container {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: calc(
+        var(--cell-width) * var(--per-row) + var(--gap) * (var(--per-row) - 1) +
+            var(--border-size) * 2 * var(--per-row)
+    );
+    gap: var(--gap);
+}
+
+.cell {
+    width: var(--cell-width);
+    height: var(--cell-width);
+    border: solid var(--border-size) black;
+}
+
+.cell.active {
+    background-color: black;
+}

@@ -1,14 +1,15 @@
-import { For, createSignal, onCleanup } from "solid-js";
+import { Index, createSignal, onCleanup } from "solid-js";
 import clsx from "clsx";
 
 import "./main.css";
 import Game, { Coordinates } from "./classes/game";
 
 export default function App() {
-    const SIZE = 124;
+    const SIZE = 140;
     const forArr: boolean[] = new Array(SIZE).fill(false);
 
     const [running, setRunning] = createSignal(false);
+    const [iterationTime, setIterationTime] = createSignal(0);
 
     const [game, setGame] = createSignal(new Game(SIZE, SIZE), {
         equals: false,
@@ -17,6 +18,7 @@ export default function App() {
     const interval = setInterval(() => {
         if (!running()) return;
 
+        const now = performance.now();
         const gameClone = game().clone();
 
         for (const [y, arr] of game().data.entries()) {
@@ -43,8 +45,9 @@ export default function App() {
             }
         }
 
+        setIterationTime(performance.now() - now);
         setGame(gameClone);
-    }, 100);
+    });
 
     function onClickCell(coordinates: Coordinates) {
         setGame(g => {
@@ -77,26 +80,22 @@ export default function App() {
     return (
         <div class="middle">
             <div class="cell-container">
-                <For each={forArr}>
+                <Index each={forArr}>
                     {(_, y) => (
-                        <For each={forArr}>
+                        <Index each={forArr}>
                             {(_, x) => (
                                 <div
                                     class={clsx(
                                         "cell",
-                                        game().get({ x: x(), y: y() }) ===
-                                            true && "active",
-                                        `x:${x()}`,
-                                        `y:${y()}`
+                                        game().get({ x, y }) === true &&
+                                            "active"
                                     )}
-                                    onClick={() =>
-                                        onClickCell({ x: x(), y: y() })
-                                    }
+                                    onClick={() => onClickCell({ x, y })}
                                 />
                             )}
-                        </For>
+                        </Index>
                     )}
-                </For>
+                </Index>
             </div>
 
             <div>
@@ -107,6 +106,8 @@ export default function App() {
                 </button>
 
                 <button onClick={onClickReset}>Reset</button>
+
+                <p>Iteration time: {iterationTime()} ms</p>
             </div>
         </div>
     );

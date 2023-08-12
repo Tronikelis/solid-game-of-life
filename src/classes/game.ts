@@ -1,9 +1,9 @@
-type Coordinates = {
+export type Coordinates = {
     x: number;
     y: number;
 };
 
-type Neighbors = {
+export type Neighbors = {
     left: boolean | undefined;
     right: boolean | undefined;
 
@@ -19,12 +19,27 @@ type Neighbors = {
 
 export default class Game {
     public data: boolean[][];
+    private x: number;
+    private y: number;
 
     constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+
         // oh my god, 2hrs wasted
         // this.data = new Array(y).fill(new Array(x).fill(false));
 
         this.data = new Array(y).fill(0).map(() => new Array(x).fill(false));
+    }
+
+    private setData(data: typeof this.data) {
+        this.data = data;
+    }
+
+    clone(): Game {
+        const newGame = new Game(this.x, this.y);
+        newGame.setData(structuredClone(this.data));
+        return newGame;
     }
 
     set(coordinates: Coordinates, active: boolean) {
@@ -70,5 +85,11 @@ export default class Game {
             bottomRight,
             bottomLeft,
         };
+    }
+
+    reset() {
+        this.data = new Array(this.y)
+            .fill(0)
+            .map(() => new Array(this.x).fill(false));
     }
 }

@@ -1,33 +1,74 @@
-import { For, createSignal, onMount, on, onCleanup } from "solid-js";
+import { For, createSignal, onCleanup } from "solid-js";
 import clsx from "clsx";
 
 import "./main.css";
-import Game from "./classes/game";
+import Game, { Coordinates } from "./classes/game";
 
 export default function App() {
-    const SIZE = 24;
+    const SIZE = 96;
     const forArr: boolean[] = new Array(SIZE).fill(false);
 
+    const [running, setRunning] = createSignal(false);
+
     const [game, setGame] = createSignal(new Game(SIZE, SIZE), {
-        equals: (a, b) => false,
+        equals: false,
     });
 
-    let interval: ReturnType<typeof setInterval> | undefined;
+    const interval = setInterval(() => {
+        if (!running()) return;
 
-    onMount(() => {
-        interval = setInterval(() => {
-            setGame(x => {
-                x.set(
-                    {
-                        x: Math.floor(Math.random() * SIZE),
-                        y: Math.floor(Math.random() * SIZE),
-                    },
-                    true
+        const gameClone = game().clone();
+
+        for (const [y, arr] of game().data.entries()) {
+            for (const [x, cell] of arr.entries()) {
+                const neighbors = game().neighbors({ x, y });
+
+                const alive = Object.entries(neighbors).reduce(
+                    (prev, [_, curr]) => prev + (curr === true ? 1 : 0),
+                    0
                 );
-                return x;
-            });
-        }, 0);
-    });
+
+                // any live cell with two or three live neighbors survives
+                if (cell && (alive === 2 || alive === 3)) {
+                    continue;
+                }
+
+                // any dead cell with three live neighbors becomes a live cell
+                if (!cell && alive === 3) {
+                    gameClone.set({ x, y }, true);
+                    continue;
+                }
+
+                gameClone.set({ x, y }, false);
+            }
+        }
+
+        setGame(gameClone);
+    }, 100);
+
+    function onClickCell(coordinates: Coordinates) {
+        setGame(g => {
+            g.set(coordinates, true);
+            return g;
+        });
+    }
+
+    function onClickRandom() {
+        for (const [y, arr] of game().data.entries()) {
+            for (const [x] of arr.entries()) {
+                game().set({ x, y }, Math.random() > 0.5);
+            }
+        }
+
+        setGame(x => x);
+    }
+
+    function onClickReset() {
+        setGame(x => {
+            x.reset();
+            return x;
+        });
+    }
 
     onCleanup(() => {
         clearInterval(interval);
@@ -48,11 +89,24 @@ export default function App() {
                                         `x:${x()}`,
                                         `y:${y()}`
                                     )}
+                                    onClick={() =>
+                                        onClickCell({ x: x(), y: y() })
+                                    }
                                 />
                             )}
                         </For>
                     )}
                 </For>
+            </div>
+
+            <div>
+                <button onClick={onClickRandom}>Random</button>
+
+                <button onClick={() => setRunning(x => !x)}>
+                    {running() ? "Stop" : "Run"}
+                </button>
+
+                <button onClick={onClickReset}>Reset</button>
             </div>
         </div>
     );

@@ -1,6 +1,6 @@
 :root {
     --cell-width: 4px;
-    --per-row: 24;
+    --per-row: 96;
     --gap: 2px;
     --border-size: 1px;
 }

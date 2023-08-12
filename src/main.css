@@ -1,7 +1,7 @@
 :root {
-    --cell-width: 4px;
-    --per-row: 96;
-    --gap: 2px;
+    --cell-width: 3px;
+    --per-row: 124;
+    --gap: 1px;
     --border-size: 1px;
 }
 

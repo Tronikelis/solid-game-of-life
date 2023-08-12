@@ -5,7 +5,7 @@ import "./main.css";
 import Game, { Coordinates } from "./classes/game";
 
 export default function App() {
-    const SIZE = 96;
+    const SIZE = 124;
     const forArr: boolean[] = new Array(SIZE).fill(false);
 
     const [running, setRunning] = createSignal(false);
